@@ -7,12 +7,12 @@ Gem::Specification.new do |gem|
   gem.email         = ["eugene@xtreme-computers.net"]
   gem.description   = %q{}
   gem.summary       = %q{}
-  gem.homepage      = ""
+  gem.homepage      = "https://github.com/ehowe/vhd-ruby"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.name          = "vhd-ruby"
+  gem.name          = "vhd"
   gem.require_paths = ["lib"]
   gem.version       = Vhd::VERSION
 
