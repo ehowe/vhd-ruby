@@ -6,6 +6,8 @@ module Vhd::Library
   attach_function :vhd_open, [ Vhd::Context.ptr, :string, :int ], :int
   attach_function :vhd_read_footer, [ Vhd::Footer.ptr, :pointer, :bool ], :int
 
+  attach_function :vhd_close, [ Vhd::Context.ptr ], :void
+
   HD_TYPE_FIXED   = 2
   HD_TYPE_DYNAMIC = 3
 
