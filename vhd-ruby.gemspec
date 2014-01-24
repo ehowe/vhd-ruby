@@ -16,5 +16,5 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Vhd::VERSION
 
-  gem.add_dependency "ffi"
+  gem.add_dependency "bit-struct"
 end
