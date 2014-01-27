@@ -15,8 +15,7 @@ class Vhd::Library
   end
 
   def create
-    binding.pry
-    File.open(@name, "wb") { |f| f.puts @footer.values.join }
+    File.open(@name, "wb") { |f| f.print @footer.values.join }
   end
 
   def generate_footer(options={})
@@ -34,7 +33,7 @@ class Vhd::Library
     @footer[:curr_size]    = size_in_hex
     @footer[:geometry]     = self.geometry
     @footer[:disk_type]    = ["00000002"].pack("H*")
-    @footer[:checksum]     = ""
+    @footer[:checksum]     = nil
     uuid = "aba637a999a2498f6edfd01dd854021d" # SecureRandom.hex
     @footer[:uuid]         = uuid.scan(/../).map { |c| c.hex.chr.force_encoding("BINARY") }.join
     @footer[:state]        = ["0"].pack("H*")
@@ -80,14 +79,11 @@ class Vhd::Library
   def checksum
     checksum = 0
     @footer.each do |k,v|
-      if k != :checksum
-        value = v.reverse.codepoints.each_with_index.inject(0) { |x,(y,z)| x + y * (256 ** z) }
-        ap "#{k}: #{value}"
-        checksum += value
-      end
+      next if k == :checksum
+
+      checksum += v.codepoints.inject(0) { |r,c| r += c }
     end
 
-    # this ends up 16 bytes long when it should only be 4.  I think this is the last thing keeping the vhd from being valid
-    @footer[:checksum] = [checksum.to_s(16)].pack("H*")
+    @footer[:checksum] = (~checksum).abs
   end
 end
