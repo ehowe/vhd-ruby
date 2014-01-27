@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
 require File.expand_path('../lib/vhd/version', __FILE__)
-require File.expand_path('../lib/vhd.rb', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Eugene Howe"]
@@ -12,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.name          = "vhd-ruby"
+  gem.name          = "vhd"
   gem.require_paths = ["lib"]
   gem.version       = Vhd::VERSION
 

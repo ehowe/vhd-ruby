@@ -20,25 +20,23 @@ class Vhd::Library
 
   def generate_footer(options={})
     @footer[:cookie]       = "conectix".force_encoding("BINARY")
-    @footer[:features]     = Array(options[:features] || "00000002").pack("H*")
-    @footer[:ff]           = Array(options[:file_format] || "00010000").pack("H*")
-    @footer[:offset]       = Array(options[:data_offset] || "FFFFFFFFFFFFFFFF").pack("H*")
-    #@footer[:time]         = (Time.now - Time.parse("Jan 1, 2000 12:00:00 AM GMT")).to_i.to_s(16)
-    @footer[:time]         = [(Time.parse("Jan 23, 2014 13:00:00 PM -0500") - Time.parse("Jan 1, 2000 12:00:00 AM GMT")).to_i.to_s(16)].pack("H*")
-    #@footer[:creator_app]  = "rvhd"
-    @footer[:creator_app]  = "win ".force_encoding("UTF-8")
+    @footer[:features]     = ["00000002"].pack("H*")
+    @footer[:ff]           = ["00010000"].pack("H*")
+    @footer[:offset]       = ["FFFFFFFFFFFFFFFF"].pack("H*")
+    @footer[:time]         = [(Time.now - Time.parse("Jan 1, 2000 12:00:00 AM GMT")).to_i.to_s(16)].pack("H*")
+    @footer[:creator_app]  = "rvhd".force_encoding("UTF-8")
     @footer[:creator_ver]  = ["00060002"].pack("H*")
     @footer[:creator_host] = "Wi2k".force_encoding("UTF-8")
     @footer[:orig_size]    = size_in_hex
     @footer[:curr_size]    = size_in_hex
-    @footer[:geometry]     = self.geometry
+    @footer[:geometry]     = nil
     @footer[:disk_type]    = ["00000002"].pack("H*")
     @footer[:checksum]     = nil
-    uuid = "aba637a999a2498f6edfd01dd854021d" # SecureRandom.hex
-    @footer[:uuid]         = uuid.scan(/../).map { |c| c.hex.chr.force_encoding("BINARY") }.join
+    @footer[:uuid]         = SecureRandom.hex.scan(/../).map { |c| c.hex.chr.force_encoding("BINARY") }.join
     @footer[:state]        = ["0"].pack("H*")
     @footer[:reserved]     = Array("00"*427).pack("H*")
 
+    self.geometry
     self.checksum
   end
 
@@ -73,17 +71,18 @@ class Vhd::Library
 
     cylinders = (total_sectors / sectors_per_track) / heads_per_cylinder
 
-    [cylinders, heads_per_cylinder, sectors_per_track].pack("SCC")
+    @footer[:geometry] = [cylinders, heads_per_cylinder, sectors_per_track].pack("SCC")
   end
 
   def checksum
     checksum = 0
+
     @footer.each do |k,v|
       next if k == :checksum
 
       checksum += v.codepoints.inject(0) { |r,c| r += c }
     end
 
-    @footer[:checksum] = (~checksum).abs
+    @footer[:checksum] = ["%08x" % ((~checksum).abs ^ 0xFFFFFFFF)].pack("H*")
   end
 end

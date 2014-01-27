@@ -1,4 +1,3 @@
-require 'ffi'
 require 'time'
 require 'bit-struct'
 require 'securerandom'
