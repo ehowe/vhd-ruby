@@ -18,6 +18,14 @@ class Vhd::Library
     File.open(@name, "wb") { |f| f.print @footer.values.join }
   end
 
+  def create_fixed_disk
+    File.open(@name, "wb") do |f|
+      f.truncate(size_in_bytes + 512)
+      f.seek(size_in_bytes)
+      f.write(@footer.values.join)
+    end
+  end
+
   def generate_footer(options={})
     @footer[:cookie]       = "conectix".force_encoding("BINARY")
     @footer[:features]     = ["00000002"].pack("H*")
@@ -71,7 +79,7 @@ class Vhd::Library
 
     cylinders = (total_sectors / sectors_per_track) / heads_per_cylinder
 
-    @footer[:geometry] = [cylinders, heads_per_cylinder, sectors_per_track].pack("SCC")
+    @footer[:geometry] = [cylinders, heads_per_cylinder, sectors_per_track].pack("nCC")
   end
 
   def checksum
@@ -83,6 +91,6 @@ class Vhd::Library
       checksum += v.codepoints.inject(0) { |r,c| r += c }
     end
 
-    @footer[:checksum] = ["%08x" % ((~checksum).abs ^ 0xFFFFFFFF)].pack("H*")
+    @footer[:checksum] = ["%08x" % ((~checksum) & 0xFFFFFFFF)].pack("H*")
   end
 end
